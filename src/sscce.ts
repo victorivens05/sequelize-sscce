@@ -17,9 +17,10 @@ export async function run() {
   const sequelize = createSequelizeInstance({
     logQueryParameters: true,
     benchmark: true,
-    define: {
-      timestamps: false // For less clutter in the SSCCE
-    }
+    dialect: 'mssql',
+    database: 'sscce_order_id_limit',
+    username: 'SA',
+    password: 'yourStrong(!)Password',
   });
 
   class Foo extends Model {};
@@ -30,11 +31,38 @@ export async function run() {
     modelName: 'Foo'
   });
 
-  const spy = sinon.spy();
-  sequelize.afterBulkSync(() => spy());
-  await sequelize.sync();
-  expect(spy).to.have.been.called;
+  class Bar extends Model {};
+  Bar.init({
+    name: DataTypes.TEXT,
+  }, {
+    sequelize,
+    modelName: 'Bar'
+  })
 
-  log(await Foo.create({ name: 'TS foo' }));
-  expect(await Foo.count()).to.equal(1);
+  Foo.hasMany(Bar);
+  Bar.belongsTo(Foo);
+
+  await sequelize.sync();
+
+  await Foo.create({ name: 'Foo 1' });
+  await Foo.create({ name: 'Foo 2' });
+  await Foo.create({ name: 'Foo 3' });
+  await Bar.create({ name: 'Bar 1.1', FooId: 1 });
+  await Bar.create({ name: 'Bar 1.2', FooId: 1 });
+  await Bar.create({ name: 'Bar 1.3', FooId: 1 });
+  await Bar.create({ name: 'Bar 2.1', FooId: 2 });
+  await Bar.create({ name: 'Bar 2.2', FooId: 2 });
+  await Bar.create({ name: 'Bar 2.3', FooId: 2 });
+  await Bar.create({ name: 'Bar 3.1', FooId: 3 });
+  await Bar.create({ name: 'Bar 3.2', FooId: 3 });
+  await Bar.create({ name: 'Bar 3.3', FooId: 3 });
+
+  console.log(await Bar.findAll({
+    where: { id: [1, 2, 4] },
+    include: [{
+      model: Foo,
+    }],
+    order: [[ { model: Foo, as: 'Foo' }, 'createdAt', 'DESC']],
+    limit: 2,
+  }))
 }
