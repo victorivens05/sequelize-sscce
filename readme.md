@@ -1,3 +1,9 @@
+# This repository will use MSSQL
+
+In order for it to work, you will need to have docker-compose installed and run?
+`docker-compose up mssql` to run an instance of the database.
+After that, you need to run `npm run setup-mssql` to create the database and only after that, run `npm run ts` to run the sscce.
+
 # Sequelize Quick SSCCE Base Repository
 
 Use this repository to quickly create an [SSCCE](http://www.sscce.org/) for your issue! This way your issue will be much easier to investigate.

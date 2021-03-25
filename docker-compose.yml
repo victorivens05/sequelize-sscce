@@ -1,0 +1,15 @@
+services:
+  sequelize:
+    build: .
+    volumes:
+      - .:/sequelize
+
+  # MSSQL
+  mssql:
+    image: microsoft/mssql-server-linux:latest
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: yourStrong(!)Password
+    ports:
+      - "1433:1433"
+    container_name: mssql_sscce_order_id_limit

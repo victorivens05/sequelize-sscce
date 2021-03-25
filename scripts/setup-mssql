@@ -1,0 +1,1 @@
+docker exec mssql_sscce_order_id_limit /bin/bash -c '/opt/mssql-tools/bin/sqlcmd -S 127.0.0.1 -U "sa" -d "master" -P '"'yourStrong(!)Password'"' -Q "DROP DATABASE ['sscce_order_id_limit']; CREATE DATABASE ['sscce_order_id_limit']; ALTER DATABASE ['sscce_order_id_limit'] SET READ_COMMITTED_SNAPSHOT ON;"'
